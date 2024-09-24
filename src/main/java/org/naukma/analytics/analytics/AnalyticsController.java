@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/analytics")
 @RequiredArgsConstructor
-@Slf4j
 public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
@@ -39,5 +39,11 @@ public class AnalyticsController {
         String errorMessage = "ERROR: " + e.getMessage();
         log.error(errorMessage);
         return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void reportEvent(@RequestBody AnalyticsEvent analyticsEvent) {
+        analyticsService.reportEvent(analyticsEvent);
     }
 }

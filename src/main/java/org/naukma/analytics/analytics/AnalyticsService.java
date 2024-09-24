@@ -2,7 +2,6 @@ package org.naukma.analytics.analytics;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,12 +21,12 @@ public class AnalyticsService {
 
         AnalyticsEntity newEntity = new AnalyticsEntity();
         newEntity.setDate(LocalDate.now());
-        return analyticsRepository.save(newEntity);
+
+        return analyticsRepository.saveAndFlush(newEntity);
     }
 
     public AnalyticsDto getToday() {
-        AnalyticsEntity entity = getOrCreateTodayEntity();
-        return AnalyticsMapper.INSTANCE.entityToDto(entity);
+        return AnalyticsMapper.INSTANCE.entityToDto(getOrCreateTodayEntity());
     }
 
     public List<AnalyticsDto> getAll() {
@@ -39,8 +38,7 @@ public class AnalyticsService {
         return entity.map(AnalyticsMapper.INSTANCE::entityToDto).orElse(null);
     }
 
-    @ApplicationModuleListener
-    protected void onAnalyticsEvent(AnalyticsEvent event) {
+    public void reportEvent(AnalyticsEvent event) {
         log.info("Received analytics event of type: {}", event.getType());
         AnalyticsEntity entity = getOrCreateTodayEntity();
 
@@ -49,6 +47,7 @@ public class AnalyticsService {
             case EVENT_CREATED -> entity.setNewEvents(entity.getNewEvents() + 1);
             case BOOKING_CREATED -> entity.setNewBookings(entity.getNewBookings() + 1);
             case REVIEW_CREATED -> entity.setNewReviews(entity.getNewReviews() + 1);
+            default -> throw new IllegalArgumentException("Unsupported event type: " + event.getType());
         }
 
         analyticsRepository.save(entity);
