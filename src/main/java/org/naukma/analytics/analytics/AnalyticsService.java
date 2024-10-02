@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,6 +38,24 @@ public class AnalyticsService {
     public AnalyticsDto getByDate(LocalDate date) {
         Optional<AnalyticsEntity> entity = analyticsRepository.findByDate(date);
         return entity.map(AnalyticsMapper.INSTANCE::entityToDto).orElse(null);
+    }
+
+    public String generateCsvReport() {
+        List<AnalyticsDto> analyticsList = this.getAll();
+        String header = "Date,New Users,New Events,New Reviews,New Bookings\n";
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        String rows = analyticsList.stream()
+                .map(dto -> String.format("%s,%d,%d,%d,%d",
+                        dateFormatter.format(dto.getDate()),   // Format the date correctly
+                        dto.getNewUsers(),
+                        dto.getNewEvents(),
+                        dto.getNewReviews(),
+                        dto.getNewBookings()))
+                .collect(Collectors.joining("\n"));
+
+        return header + rows;
     }
 
     public void reportEvent(AnalyticsEvent event) {
