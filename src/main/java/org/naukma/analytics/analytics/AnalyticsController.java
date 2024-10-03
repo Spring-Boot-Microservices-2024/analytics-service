@@ -39,9 +39,9 @@ public class AnalyticsController {
         return analyticsService.getByDate(date);
     }
 
-    @GetMapping(value = "/html", produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(produces = MediaType.TEXT_HTML_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public String getHtmlReport() {
+    public String htmlReport() {
         List<AnalyticsDto> analytics = analyticsService.getAll();
         StringBuilder htmlResponse = new StringBuilder("<html><body><h1>Analytics Report</h1><ul>");
         for (AnalyticsDto dto : analytics) {
@@ -51,8 +51,8 @@ public class AnalyticsController {
         return htmlResponse.toString();
     }
 
-    @GetMapping(value = "/download", produces = "text/csv")
-    public ResponseEntity<Resource> downloadCsvReport() {
+    @GetMapping(produces = "text/csv")
+    public ResponseEntity<Resource> csvReport() {
         String csvContent = analyticsService.generateCsvReport();
 
         ByteArrayResource resource = new ByteArrayResource(csvContent.getBytes(StandardCharsets.UTF_8));
