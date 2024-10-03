@@ -3,13 +3,17 @@ package org.naukma.analytics.analytics;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class AnalyticsEntity {
     @Id
     @GeneratedValue
