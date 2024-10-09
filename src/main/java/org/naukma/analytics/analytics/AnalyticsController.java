@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -74,5 +75,10 @@ public class AnalyticsController {
     @ResponseStatus(HttpStatus.OK)
     public void reportEvent(@RequestBody AnalyticsEvent analyticsEvent) {
         analyticsService.reportEvent(analyticsEvent);
+    }
+
+    @JmsListener(destination = "analytics")
+    public void receiveMessage(AnalyticsEvent event) {
+        System.out.println("Received <" + event + ">");
     }
 }
