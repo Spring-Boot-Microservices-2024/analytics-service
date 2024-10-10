@@ -76,4 +76,9 @@ public class AnalyticsController {
         analyticsService.reportEvent(event);
         System.out.println("Received <" + event + ">");
     }
+
+    @JmsListener(destination = "email", containerFactory = "jmsTopicListenerFactory")
+    public void receiveEmailMessage(String email) {
+        System.out.println("Received <" + email + ">");
+    }
 }

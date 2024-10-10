@@ -19,11 +19,23 @@ import java.util.Map;
 @Component
 @EnableJms
 public class JmsConfig {
+
+    // Queue (P2P)
     @Bean
     public JmsListenerContainerFactory<?> jmsListenerFactory(@Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory,
                                                              DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         configurer.configure(factory, connectionFactory);
+        return factory;
+    }
+
+    // Topic (Pub/Sub)
+    @Bean
+    public JmsListenerContainerFactory<?> jmsTopicListenerFactory(@Qualifier("jmsConnectionFactory") ConnectionFactory connectionFactory,
+                                                                  DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        configurer.configure(factory, connectionFactory);
+        factory.setPubSubDomain(true);
         return factory;
     }
 
@@ -39,5 +51,4 @@ public class JmsConfig {
 
         return converter;
     }
-
 }
