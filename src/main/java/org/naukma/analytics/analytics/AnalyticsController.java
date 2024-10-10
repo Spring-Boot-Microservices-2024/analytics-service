@@ -71,14 +71,9 @@ public class AnalyticsController {
         return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public void reportEvent(@RequestBody AnalyticsEvent analyticsEvent) {
-        analyticsService.reportEvent(analyticsEvent);
-    }
-
-    @JmsListener(destination = "analytics")
+    @JmsListener(destination = "analytics", containerFactory = "jmsListenerFactory")
     public void receiveMessage(AnalyticsEvent event) {
+        analyticsService.reportEvent(event);
         System.out.println("Received <" + event + ">");
     }
 }

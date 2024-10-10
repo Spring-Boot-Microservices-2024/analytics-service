@@ -1,6 +1,7 @@
 package org.naukma.analytics;
 
 import jakarta.jms.ConnectionFactory;
+import org.naukma.analytics.analytics.AnalyticsEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,9 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @EnableJms
@@ -26,8 +30,13 @@ public class JmsConfig {
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        Map<String, Class<?>> typeIdMappings = new HashMap<>();
+        typeIdMappings.put("JMS_TYPE", AnalyticsEvent.class);
+
+        converter.setTypeIdMappings(typeIdMappings);
         converter.setTargetType(MessageType.TEXT);
-        converter.setTypeIdPropertyName("_type");
+        converter.setTypeIdPropertyName("JMS_TYPE");
+
         return converter;
     }
 

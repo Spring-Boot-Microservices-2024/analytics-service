@@ -37,7 +37,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-artemis'
     implementation 'org.springframework.boot:spring-boot-starter-json'
-    implementation 'org.apache.activemq:artemis-jakarta-server'
     testImplementation 'org.springframework.security:spring-security-test'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -65,7 +64,7 @@ docker {
     springBootApplication {
         ports = [8081]
         baseImage = 'openjdk:24'
-        jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m']
+        jvmArgs = ['-Dspring.profiles.active=production', '-Xmx2048m', '-Djava.security.manager=allow']
         images = ['daimonix/modulith-booking-analytics']
     }
 }
