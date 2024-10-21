@@ -5,10 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Getter
@@ -24,11 +25,11 @@ public class AuthenticationService {
         log.info("AuthenticationService initialized with header: {} and key: {}", authHeader, authKey);
     }
 
-    public Authentication getAuthentication(HttpServletRequest request) {
+    public Optional<Authentication> getAuthentication(HttpServletRequest request) {
         String apiKey = request.getHeader(authHeader);
         if (apiKey == null || !apiKey.equals(authKey))
-            throw new BadCredentialsException("Invalid API Key");
+            return Optional.empty();
 
-        return new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES);
+        return Optional.of(new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES));
     }
 }
