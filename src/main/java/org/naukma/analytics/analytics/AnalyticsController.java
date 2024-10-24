@@ -1,7 +1,11 @@
 package org.naukma.analytics.analytics;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +24,23 @@ import java.util.List;
 @RequestMapping("/analytics")
 @RequiredArgsConstructor
 public class AnalyticsController {
+
     private final AnalyticsService analyticsService;
+    private final Counter counter;
+
+    @Autowired
+    public AnalyticsController(AnalyticsService analyticsService, MeterRegistry registry) {
+        this.analyticsService = analyticsService;
+        this.counter = Counter.builder("analytics_events").
+                tag("version", "v1").
+                description("Total Event Count").
+                register(registry);
+
+        Gauge.builder("analytics_new_users_today", () -> getToday().getNewUsers()).
+                tag("version", "v1").
+                description("Number of new users created today").
+                register(registry);
+    }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -73,6 +93,7 @@ public class AnalyticsController {
 
     @JmsListener(destination = "analytics", containerFactory = "jmsListenerFactory")
     public void receiveMessage(AnalyticsEvent event) {
+        counter.increment();
         analyticsService.reportEvent(event);
         System.out.println("Received <" + event + ">");
     }
