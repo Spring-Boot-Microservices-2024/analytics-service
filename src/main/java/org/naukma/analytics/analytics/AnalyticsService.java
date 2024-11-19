@@ -2,6 +2,7 @@ package org.naukma.analytics.analytics;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AnalyticsService {
+
     private final AnalyticsRepository analyticsRepository;
 
     private AnalyticsEntity getOrCreateTodayEntity() {
@@ -48,7 +50,7 @@ public class AnalyticsService {
 
         String rows = analyticsList.stream()
                 .map(dto -> String.format("%s,%d,%d,%d,%d",
-                        dateFormatter.format(dto.getDate()),   // Format the date correctly
+                        dateFormatter.format(dto.getDate()),
                         dto.getNewUsers(),
                         dto.getNewEvents(),
                         dto.getNewReviews(),
@@ -58,7 +60,12 @@ public class AnalyticsService {
         return header + rows;
     }
 
-    public void reportEvent(AnalyticsEvent event) {
+    @JmsListener(destination = "analytics", containerFactory = "jmsListenerFactory")
+    private void receiveAnalyticsEvent(AnalyticsEvent event) {
+        reportEvent(event);
+    }
+
+    private void reportEvent(AnalyticsEvent event) {
         log.info("Received analytics event of type: {}", event.getType());
         AnalyticsEntity entity = getOrCreateTodayEntity();
 
