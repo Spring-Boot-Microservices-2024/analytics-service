@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -23,25 +22,21 @@ public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public List<AnalyticsDto> getAll() {
         return analyticsService.getAll();
     }
 
     @GetMapping(value = "/today", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public AnalyticsDto getToday() {
         return analyticsService.getToday();
     }
 
     @GetMapping(value = "/{date}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public AnalyticsDto getByDate(@PathVariable LocalDate date) {
         return analyticsService.getByDate(date);
     }
 
     @GetMapping(produces = MediaType.TEXT_HTML_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public String htmlReport() {
         List<AnalyticsDto> analytics = analyticsService.getAll();
         StringBuilder htmlResponse = new StringBuilder("<html><body><h1>Analytics Report</h1><ul>");
@@ -69,16 +64,5 @@ public class AnalyticsController {
         String errorMessage = "ERROR: " + e.getMessage();
         log.error(errorMessage);
         return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @JmsListener(destination = "analytics", containerFactory = "jmsListenerFactory")
-    public void receiveMessage(AnalyticsEvent event) {
-        analyticsService.reportEvent(event);
-        System.out.println("Received <" + event + ">");
-    }
-
-    @JmsListener(destination = "email", containerFactory = "jmsTopicListenerFactory")
-    public void receiveEmailMessage(String email) {
-        System.out.println("Received <" + email + ">");
     }
 }
