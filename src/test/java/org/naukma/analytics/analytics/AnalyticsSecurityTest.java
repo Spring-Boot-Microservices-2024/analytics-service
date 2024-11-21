@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AnalyticsController.class)
-public class AnalyticsSecurityTest {
+class AnalyticsSecurityTest {
 
     @Autowired
     private MockMvc mockMvc;
